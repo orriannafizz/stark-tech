@@ -44,7 +44,7 @@ const Launch: React.FC<LaunchRowProps> = ({
         <Button
           href={id}
           variant="outlined"
-          style={{ color: "black", borderColor: "black" }}>
+          style={{ color: "white", borderColor: "white" }}>
           Learn more ...
         </Button>
       </CardContent>

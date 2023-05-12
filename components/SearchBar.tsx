@@ -1,43 +1,28 @@
-import { useState, useEffect } from "react";
-import { LaunchProps } from "./Table";
 import {
   TextField,
   Button,
-  ThemeProvider,
-  createTheme,
   Select,
   MenuItem,
   InputLabel,
   FormControl,
 } from "@mui/material";
-import theme from "@/styles/muiTheme";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
-import { DateRangePicker } from "@mui/lab";
 import { SelectChangeEvent } from "@mui/material/Select";
+import { Filter } from "./Table";
+
 interface SearchBarProps {
-  data: LaunchProps[] | undefined;
-  setData: React.Dispatch<React.SetStateAction<LaunchProps[] | undefined>>;
-}
-interface Filter {
-  text: string;
-  startDate: string;
-  endDate: string;
-  selectSuccess: boolean;
-  isSuccessful: boolean;
-  fromNowtoPast: boolean;
+  filter: Filter;
+  setFilter: React.Dispatch<React.SetStateAction<Filter>>;
+  setTrigger: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ data, setData }) => {
-  const [filter, setFilter] = useState<Filter>({
-    text: "",
-    startDate: "",
-    endDate: "",
-    selectSuccess: false,
-    isSuccessful: false,
-    fromNowtoPast: true,
-  });
-  const handleSelectChange = (event: SelectChangeEvent) => {
+const SearchBar: React.FC<SearchBarProps> = ({
+  filter,
+  setFilter,
+  setTrigger,
+}) => {
+  const handleSortChange = (event: SelectChangeEvent) => {
     setFilter({
       ...filter,
       fromNowtoPast: event.target.value === "true",
@@ -47,61 +32,79 @@ const SearchBar: React.FC<SearchBarProps> = ({ data, setData }) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFilter({ ...filter, [e.target.name]: e.target.value });
   };
+  const handleSuccessChange = (event: SelectChangeEvent) => {
+    setFilter({
+      ...filter,
+      isSuccess: event.target.value as string,
+    });
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // 這裡實現你的過濾和設定數據的邏輯
+    setTrigger((prev) => prev + 1);
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <form
-        onSubmit={handleSubmit}
-        className=" space-x-2 mb-4 flex items-center">
-        <TextField
-          name="text"
-          value={filter.text}
-          onChange={handleInputChange}
-          label="search..."
-        />
-        <TextField
-          type="date"
-          name="startDate"
-          value={filter.startDate}
-          onChange={handleInputChange}
-          label="Start Date"
-          InputLabelProps={{ shrink: true }}
-        />
-        <TextField
-          type="date"
-          name="endDate"
-          value={filter.endDate}
-          onChange={handleInputChange}
-          label="End Date"
-          InputLabelProps={{ shrink: true }}
-        />
-        {/* 這裡還可以添加更多的 TextField 根據你的過濾條件 */}
+    <form onSubmit={handleSubmit} className=" space-x-2 mb-4 flex items-center">
+      <TextField
+        name="text"
+        value={filter.text}
+        onChange={handleInputChange}
+        label="search..."
+      />
+      <TextField
+        type="date"
+        name="startDate"
+        value={filter.startDate || ""}
+        onChange={handleInputChange}
+        label="Start Date"
+        InputLabelProps={{
+          shrink: true,
+        }}
+        inputProps={{ max: filter.endDate }}
+      />
+      <TextField
+        type="date"
+        name="endDate"
+        value={filter.endDate}
+        onChange={handleInputChange}
+        label="End Date"
+        InputLabelProps={{
+          shrink: true,
+        }}
+        inputProps={{ min: filter.startDate }}
+      />
+      <FormControl>
+        <InputLabel id="Sucessful">Sucessful</InputLabel>
+        <Select
+          label="Sucessful"
+          value={filter.isSuccess}
+          onChange={handleSuccessChange}>
+          <MenuItem value="All">All</MenuItem>
+          <MenuItem value="Succeed">Succeed</MenuItem>
+          <MenuItem value="Failed">Failed</MenuItem>
+        </Select>
+      </FormControl>
 
-        <FormControl>
-          <InputLabel id="demo-simple-select-label">Launch Date</InputLabel>
-          <Select
-            label="Launch Date"
-            value={filter.fromNowtoPast ? "true" : "false"}
-            onChange={handleSelectChange}>
-            <MenuItem value="true">
-              <ArrowDownwardIcon /> Newest to Oldest
-            </MenuItem>
-            <MenuItem value="false">
-              <ArrowUpwardIcon /> Oldest to Newest
-            </MenuItem>
-          </Select>
-        </FormControl>
+      <FormControl>
+        <InputLabel id="launch-date">Sorting</InputLabel>
+        <Select
+          label="Sorting"
+          value={filter.fromNowtoPast ? "true" : "false"}
+          onChange={handleSortChange}>
+          <MenuItem value="true">
+            <ArrowDownwardIcon /> Newest to Oldest
+          </MenuItem>
+          <MenuItem value="false">
+            <ArrowUpwardIcon /> Oldest to Newest
+          </MenuItem>
+        </Select>
+      </FormControl>
 
-        <Button type="submit" variant="contained" color="primary">
-          Submit
-        </Button>
-      </form>
-    </ThemeProvider>
+      <Button type="submit" variant="contained" color="primary">
+        filte
+      </Button>
+    </form>
   );
 };
 
